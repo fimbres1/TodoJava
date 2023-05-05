@@ -1,5 +1,7 @@
 package com.example.todojava;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -8,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.example.todojava.Adapter.ToDoAdapter;
@@ -68,14 +71,18 @@ public class MainActivity extends AppCompatActivity implements OnDialogCloseList
         listenerRegistration = query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                for (DocumentChange documentChange : value.getDocumentChanges()){
-                    if (documentChange.getType() == DocumentChange.Type.ADDED){
+                if (error != null) {
+                    Log.d(TAG, "Error:" + error.getMessage());
+                }else {
+                for (DocumentChange documentChange : value.getDocumentChanges()) {
+                    if (documentChange.getType() == DocumentChange.Type.ADDED) {
                         String id = documentChange.getDocument().getId();
                         ToDoModel toDoModel = documentChange.getDocument().toObject(ToDoModel.class).withId(id);
                         mList.add(toDoModel);
                         adapter.notifyDataSetChanged();
                     }
                 }
+            }
                 listenerRegistration.remove();
 
             }

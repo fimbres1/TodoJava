@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">TodoJava</string>
+    <string name="todo">ToDo</string>
 </resources>

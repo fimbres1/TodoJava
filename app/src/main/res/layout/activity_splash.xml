@@ -11,16 +11,15 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ToDo"
+        android:text="@string/todo"
         android:textSize="40sp"
         android:textStyle="bold"
-        android:textColor="white"
-        android:drawableRight="@drawable/baseline_done_all_24"
         android:drawablePadding="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintVertical_bias="0.5"
+        app:drawableRightCompat="@drawable/baseline_done_all_24" />
 </androidx.constraintlayout.widget.ConstraintLayout>
