@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements OnDialogCloseList
         recyclerView.setAdapter(adapter);
     }
     private void showData(){
-        query = firestore.collection("task").orderBy("time" , Query.Direction.DESCENDING);
+        query = firestore.collection("task").orderBy("time" , Query.Direction.DESCENDING).limit(3);
 
         listenerRegistration = query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override

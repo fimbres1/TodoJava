@@ -46,6 +46,12 @@ public class AddNewTask  extends BottomSheetDialogFragment {
     private String id = "";
     private String dueDateUpdate = "";
 
+    private enum Priority{
+        Low,
+        Medium,
+        High
+    }
+
     public static AddNewTask newInstance(){
         return new AddNewTask();
     }
