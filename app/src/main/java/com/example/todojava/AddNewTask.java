@@ -24,14 +24,17 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class AddNewTask  extends BottomSheetDialogFragment {
 
@@ -45,6 +48,7 @@ public class AddNewTask  extends BottomSheetDialogFragment {
     private String dueDate = "";
     private String id = "";
     private String dueDateUpdate = "";
+    private FirebaseAuth mAuth;
 
     private enum Priority{
         Low,
@@ -72,6 +76,7 @@ public class AddNewTask  extends BottomSheetDialogFragment {
         mSaveBtn = view.findViewById(R.id.save_btn);
 
         firestore = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
         boolean isUpdate = false;
 
@@ -84,6 +89,7 @@ public class AddNewTask  extends BottomSheetDialogFragment {
 
             mTaskEdit.setText(task);
             setDueDate.setText(dueDateUpdate);
+
 
             if (task.length() > 0){
                 mSaveBtn.setEnabled(false);
@@ -154,13 +160,15 @@ public class AddNewTask  extends BottomSheetDialogFragment {
                         Toast.makeText(context, "Empty task not Allowed !!", Toast.LENGTH_SHORT).show();
                     } else {
 
+                       String currentUser = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
+
                         Map<String, Object> taskMap = new HashMap<>();
 
                         taskMap.put("task", task);
                         taskMap.put("due", dueDate);
                         taskMap.put("status", 0);
                         taskMap.put("time", FieldValue.serverTimestamp());
-
+                        taskMap.put("uid", currentUser);
                         firestore.collection("task").add(taskMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentReference> task) {

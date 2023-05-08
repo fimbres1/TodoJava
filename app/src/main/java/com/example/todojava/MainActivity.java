@@ -9,13 +9,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 
 import com.example.todojava.Adapter.ToDoAdapter;
 import com.example.todojava.Model.ToDoModel;
+import com.example.todojava.databinding.ActivityMainBinding;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -23,11 +27,12 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements OnDialogCloseListner{
+public class MainActivity extends AppCompatActivity implements OnDialogCloseListner, View.OnClickListener {
 
     private RecyclerView recyclerView;
     private FloatingActionButton mFab;
@@ -36,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements OnDialogCloseList
     private List<ToDoModel> mList;
     private Query query;
     private ListenerRegistration listenerRegistration;
+    private FirebaseAuth mAuth;
+    private Button btnLogout;
 
 
     @Override
@@ -46,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements OnDialogCloseList
         recyclerView = findViewById(R.id.recycerlview);
         mFab = findViewById(R.id.floatingActionButton);
         firestore = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+        btnLogout = findViewById(R.id.btnLogout);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
@@ -60,33 +69,42 @@ public class MainActivity extends AppCompatActivity implements OnDialogCloseList
         mList = new ArrayList<>();
         adapter = new ToDoAdapter(MainActivity.this , mList);
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new com.example.todojava.TouchHelper(adapter));
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new TouchHelper(adapter));
         itemTouchHelper.attachToRecyclerView(recyclerView);
         showData();
         recyclerView.setAdapter(adapter);
     }
     private void showData(){
-        query = firestore.collection("task").orderBy("time" , Query.Direction.DESCENDING).limit(3);
+        query = firestore.collection("task").orderBy("time" , Query.Direction.DESCENDING);
 
         listenerRegistration = query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    Log.d(TAG, "Error:" + error.getMessage());
-                }else {
-                for (DocumentChange documentChange : value.getDocumentChanges()) {
-                    if (documentChange.getType() == DocumentChange.Type.ADDED) {
+                for (DocumentChange documentChange : value.getDocumentChanges()){
+                    if (documentChange.getType() == DocumentChange.Type.ADDED){
                         String id = documentChange.getDocument().getId();
                         ToDoModel toDoModel = documentChange.getDocument().toObject(ToDoModel.class).withId(id);
                         mList.add(toDoModel);
                         adapter.notifyDataSetChanged();
                     }
                 }
-            }
                 listenerRegistration.remove();
 
             }
         });
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAuth.signOut();
+                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            }
+        });
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        mAuth.signOut();
     }
 
     @Override
